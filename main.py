@@ -1,5 +1,6 @@
 import pygame
 import sys
+import matplotlib.image as mpimg
 from pygame.locals import *
 """
 Game project 
@@ -25,12 +26,30 @@ def terminate():
 
 class Submarine():
 
-
     def __init__(self):
         self.pos = [round(width/2), round(height/2)]
-        self.image = load_image("submarineTransparent.png").convert_alpha()
+        self.image = load_image("assets/submarineTransparent.png").convert_alpha()
+        self.boundaries = mpimg.imread("assets/submarineTransparentBoundaries.png").T
         self.imagerect = self.image.get_rect()
-        self.imagerect.topleft = self.pos # TODO : set center of the image at the center of the screen instead of topleft of image
+        self.imagerect.center = self.pos # TODO : set center of the image at the center of the screen instead of topleft of image
+
+
+    def isFreeSpace(self,pos):
+
+        posInSub = self.globPos2SubPos(pos)
+        if posInSub[0]<=0 or posInSub[1]<=0:
+            return False
+        elif posInSub[0] > len(self.boundaries[0]) or posInSub[1] > len(self.boundaries[0][0]):
+            return False
+        elif self.boundaries[0][posInSub[0]][posInSub[1]] == 1:
+            return True
+        else:
+            return False
+
+    def globPos2SubPos(self,pos):
+
+        posInSub = [pos[0]-self.imagerect[0],pos[1]-self.imagerect[1]]
+        return posInSub
 
 
 
@@ -41,12 +60,12 @@ class Pilot():
 
     def __init__(self):
         self.pos = [round(width/2), round(height/2)]
-        self.image = load_image("perso.png").convert_alpha()
+        self.image = load_image("assets/perso.png").convert_alpha()
         heightImg = self.image.get_size()[1]
         widthImg = self.image.get_size()[0]
         self.image = pygame.transform.scale(self.image, (round(widthImg/3), round(heightImg/3))) # TODO : normalize according to screen size
         self.imagerect=self.image.get_rect()
-        self.imagerect.topleft = self.pos # TODO : set center of the image at the center of the screen instead of topleft of image
+        self.imagerect.center = self.pos
 
     def update(self,key):
         if key == K_w: # up
@@ -66,25 +85,39 @@ class Pilot():
             self.imagerect.topleft = self.pos
 
 
-    def updateState(self):
+    def updateState(self,submarine):
+
+
+        newPos = self.pos.copy()
         if len(self.state) == 0:
             return
-        newState = self.state[-1]
-        if newState == "movingUp": # up
-            self.pos[1] = self.pos[1] - self.vel
-            self.imagerect.topleft = self.pos
+        print(self.pos)
+        if "movingUp" in self.state: # up
+            newPos[1] = self.pos[1] - self.vel
 
-        if newState == "movingDown": # down
-            self.pos[1] = self.pos[1] + self.vel
-            self.imagerect.topleft = self.pos
 
-        if newState == "movingLeft": # left
-            self.pos[0] = self.pos[0] - self.vel
-            self.imagerect.topleft = self.pos
+        if "movingDown" in self.state: # down
+            newPos[1] = self.pos[1] + self.vel
 
-        if newState == "movingRight": # right
-            self.pos[0] = self.pos[0] + self.vel
-            self.imagerect.topleft = self.pos
+
+        if "movingLeft" in self.state: # left
+            newPos[0] = self.pos[0] - self.vel
+
+
+        if "movingRight" in self.state: # right
+            newPos[0] = self.pos[0] + self.vel
+
+        print(self.pos)
+        print("----")
+        if submarine.isFreeSpace(newPos):
+            self.pos = newPos
+
+            self.imagerect.center = newPos
+
+
+
+
+
 
 
 
@@ -123,11 +156,8 @@ if __name__ == '__main__':
                 terminate()
 
 
-        if pilot.state != []:
-            print(pilot.state)
 
-
-        pilot.updateState()
+        pilot.updateState(submarine)
         screen.fill([0, 0, 255])
         screen.blit(submarine.image, submarine.imagerect)
         screen.blit(pilot.image, pilot.imagerect)
