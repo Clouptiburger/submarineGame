@@ -12,10 +12,13 @@ dictControls = {K_w : "movingUp", K_s : "movingDown", K_a : "movingLeft", K_d : 
 clock=pygame.time.Clock()
 fps = 60
 
+
+
 pygame.init()
 screen = pygame.display.set_mode((width, height))
 screen.fill([0, 0, 255])
-pygame.display.flip()
+
+
 
 def load_image(path):
     return pygame.image.load(path)
@@ -24,14 +27,27 @@ def terminate():
     pygame.quit()
     sys.exit()
 
+class Score():
+    val = 0
+    font = pygame.font.SysFont('ocraextended.tff', 50)
+
+    def __init__(self):
+        self.text = (self.font).render(str(self.val), True, [0, 0, 0])
+        self.textRect = self.text.get_rect()
+        self.textRect.center = (round(width/2), height - 50)
+
+    def update(self):
+        self.val = self.val + 5/fps # TODO : Slow down points maybe ?
+        self.text = (self.font).render(str(round(self.val)), True, [0, 0, 0])
+
 class Submarine():
 
     def __init__(self):
         self.pos = [round(width/2), round(height/2)]
         self.image = load_image("assets/submarineTransparent.png").convert_alpha()
         self.boundaries = mpimg.imread("assets/submarineTransparentBoundaries.png").T
-        self.imagerect = self.image.get_rect()
-        self.imagerect.center = self.pos # TODO : set center of the image at the center of the screen instead of topleft of image
+        self.imageRect = self.image.get_rect()
+        self.imageRect.center = self.pos # TODO : set center of the image at the center of the screen instead of topleft of image
 
 
     def isFreeSpace(self,pos):
@@ -48,7 +64,7 @@ class Submarine():
 
     def globPos2SubPos(self,pos):
 
-        posInSub = [pos[0]-self.imagerect[0],pos[1]-self.imagerect[1]]
+        posInSub = [pos[0]-self.imageRect[0],pos[1]-self.imageRect[1]]
         return posInSub
 
 
@@ -64,8 +80,8 @@ class Pilot():
         heightImg = self.image.get_size()[1]
         widthImg = self.image.get_size()[0]
         self.image = pygame.transform.scale(self.image, (round(widthImg/3), round(heightImg/3))) # TODO : normalize according to screen size
-        self.imagerect=self.image.get_rect()
-        self.imagerect.center = self.pos
+        self.imageRect=self.image.get_rect()
+        self.imageRect.center = self.pos
 
     def update(self,key):
         if key == K_w: # up
@@ -112,7 +128,7 @@ class Pilot():
         if submarine.isFreeSpace(newPos):
             self.pos = newPos
 
-            self.imagerect.center = newPos
+            self.imageRect.center = newPos
 
 
 
@@ -121,11 +137,12 @@ class Pilot():
 
 
 
-
+pilot = Pilot()
+submarine = Submarine()
+score = Score()
 
 if __name__ == '__main__':
-    pilot = Pilot()
-    submarine = Submarine()
+
     running = True
     while running:
 
@@ -158,9 +175,13 @@ if __name__ == '__main__':
 
 
         pilot.updateState(submarine)
+        score.update()
+
+
         screen.fill([0, 0, 255])
-        screen.blit(submarine.image, submarine.imagerect)
-        screen.blit(pilot.image, pilot.imagerect)
+        screen.blit(submarine.image, submarine.imageRect)
+        screen.blit(pilot.image, pilot.imageRect)
+        screen.blit(score.text, score.textRect)
 
         pygame.display.update()
         clock.tick(fps)
