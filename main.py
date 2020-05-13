@@ -7,9 +7,9 @@ Game project
 
 height = 600
 width = 1200
-
+dictControls = {K_w : "movingUp", K_s : "movingDown", K_a : "movingLeft", K_d : "movingRight"}
 clock=pygame.time.Clock()
-fps = 25
+fps = 60
 
 pygame.init()
 screen = pygame.display.set_mode((width, height))
@@ -28,8 +28,9 @@ class submarine():
 
 
 class pilot():
-    allowedKeys = [K_w,K_a,K_s,K_d]
+    dictControls = {K_w : "movingUp", K_s : "movingDown", K_a : "movingLeft", K_d : "movingRight"}
     vel = 10
+    state = "still"
 
     def __init__(self):
         self.pos = [round(width/2), round(height/2)]
@@ -58,6 +59,25 @@ class pilot():
             self.imagerect.topleft = self.pos
 
 
+    def updateState(self):
+        newState = self.state
+        if newState == "movingUp": # up
+            self.pos[1] = self.pos[1] - self.vel
+            self.imagerect.topleft = self.pos
+
+        if newState == "movingDown": # down
+            self.pos[1] = self.pos[1] + self.vel
+            self.imagerect.topleft = self.pos
+
+        if newState == "movingLeft": # left
+            self.pos[0] = self.pos[0] - self.vel
+            self.imagerect.topleft = self.pos
+
+        if newState == "movingRight": # right
+            self.pos[0] = self.pos[0] + self.vel
+            self.imagerect.topleft = self.pos
+
+
 
 
 
@@ -70,12 +90,18 @@ if __name__ == '__main__':
 
         for event in pygame.event.get():
             if event.type == KEYDOWN:
-                if event.key in pilot.allowedKeys:
-                    pilot.update(event.key)
+                if event.key in pilot.dictControls.keys():
+                    pilot.state = pilot.dictControls[event.key]
+                    # pilot.update(event.key)
+                    print(pilot.state)
 
                 if event.key == K_ESCAPE:
                     running = False
                     terminate()
+
+            if event.type == KEYUP:
+                if event.key in pilot.dictControls.keys():
+                    pilot.state = "still"
 
 
 
@@ -88,7 +114,7 @@ if __name__ == '__main__':
                 terminate()
 
 
-
+        pilot.updateState()
         screen.fill([0, 0, 255])
         screen.blit(pilot.image, pilot.imagerect)
 
