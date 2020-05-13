@@ -1,1 +1,4 @@
 # submarineGame
+dependencies : 
+  pygame 
+  matplotlib
