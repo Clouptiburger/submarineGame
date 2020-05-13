@@ -30,14 +30,14 @@ class submarine():
 class pilot():
     dictControls = {K_w : "movingUp", K_s : "movingDown", K_a : "movingLeft", K_d : "movingRight"}
     vel = 10
-    state = "still"
+    state = [] # empty is still
 
     def __init__(self):
         self.pos = [round(width/2), round(height/2)]
         self.image = load_image("perso.png").convert_alpha()
         heightImg = self.image.get_size()[1]
         widthImg = self.image.get_size()[0]
-        self.image = pygame.transform.scale(self.image, (round(widthImg/2), round(heightImg/2))) # TODO : normalize according to screen size
+        self.image = pygame.transform.scale(self.image, (round(widthImg/3), round(heightImg/3))) # TODO : normalize according to screen size
         self.imagerect=self.image.get_rect()
         self.imagerect.topleft = self.pos # TODO : set center of the image at the center of the screen instead of topleft of image
 
@@ -60,7 +60,9 @@ class pilot():
 
 
     def updateState(self):
-        newState = self.state
+        if len(self.state) is 0:
+            return
+        newState = self.state[-1]
         if newState == "movingUp": # up
             self.pos[1] = self.pos[1] - self.vel
             self.imagerect.topleft = self.pos
@@ -91,9 +93,9 @@ if __name__ == '__main__':
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key in pilot.dictControls.keys():
-                    pilot.state = pilot.dictControls[event.key]
+                    pilot.state.append(pilot.dictControls[event.key])
                     # pilot.update(event.key)
-                    print(pilot.state)
+
 
                 if event.key == K_ESCAPE:
                     running = False
@@ -101,7 +103,7 @@ if __name__ == '__main__':
 
             if event.type == KEYUP:
                 if event.key in pilot.dictControls.keys():
-                    pilot.state = "still"
+                    pilot.state.remove(dictControls[event.key])
 
 
 
@@ -112,6 +114,10 @@ if __name__ == '__main__':
             if event.type == pygame.QUIT:
                 running = False
                 terminate()
+
+
+        if pilot.state != []:
+            print(pilot.state)
 
 
         pilot.updateState()
