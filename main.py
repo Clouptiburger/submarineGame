@@ -1,7 +1,9 @@
 import pygame
 import sys
 from pygame.locals import *
-
+"""
+Game project 
+"""
 
 height = 600
 width = 1200
