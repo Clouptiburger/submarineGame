@@ -29,10 +29,10 @@ def terminate():
 
 class Score():
     val = 0
-    font = pygame.font.SysFont('ocraextended.tff', 50)
+    font = pygame.font.SysFont("ocraextended", 50)
 
     def __init__(self):
-        self.text = (self.font).render(str(self.val), True, [0, 0, 0])
+        self.text = self.font.render(str(self.val), True, [0, 0, 0])
         self.textRect = self.text.get_rect()
         self.textRect.center = (round(width/2), height - 50)
 
@@ -143,6 +143,9 @@ score = Score()
 
 if __name__ == '__main__':
 
+
+
+    # main loop
     running = True
     while running:
 
