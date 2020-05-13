@@ -23,11 +23,18 @@ def terminate():
     pygame.quit()
     sys.exit()
 
-class submarine():
-    pass
+class Submarine():
 
 
-class pilot():
+    def __init__(self):
+        self.pos = [round(width/2), round(height/2)]
+        self.image = load_image("submarineTransparent.png").convert_alpha()
+        self.imagerect = self.image.get_rect()
+        self.imagerect.topleft = self.pos # TODO : set center of the image at the center of the screen instead of topleft of image
+
+
+
+class Pilot():
     dictControls = {K_w : "movingUp", K_s : "movingDown", K_a : "movingLeft", K_d : "movingRight"}
     vel = 10
     state = [] # empty is still
@@ -60,7 +67,7 @@ class pilot():
 
 
     def updateState(self):
-        if len(self.state) is 0:
+        if len(self.state) == 0:
             return
         newState = self.state[-1]
         if newState == "movingUp": # up
@@ -84,8 +91,8 @@ class pilot():
 
 
 if __name__ == '__main__':
-    pilot = pilot()
-
+    pilot = Pilot()
+    submarine = Submarine()
     running = True
     while running:
 
@@ -122,6 +129,7 @@ if __name__ == '__main__':
 
         pilot.updateState()
         screen.fill([0, 0, 255])
+        screen.blit(submarine.image, submarine.imagerect)
         screen.blit(pilot.image, pilot.imagerect)
 
         pygame.display.update()
