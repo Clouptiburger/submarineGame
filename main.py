@@ -263,7 +263,6 @@ if __name__ == '__main__':
         if score.val > nextVal:
             compartmentDamaged = getDamage(submarine)
             nextVal = score.val + numpy.random.rand()*25
-            print(compartmentDamaged)
             if compartmentDamaged is not None:
                 submarine.compartments[compartmentDamaged].isDamaged = True
 
